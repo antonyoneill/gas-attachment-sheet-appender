@@ -44,7 +44,7 @@ function validateConfig() {
   var incomingLabel = getGmailIncomingLabel();
   if (!incomingLabel) {
     Logger.log(
-      'Unable to find "Incoming" Gmail label by path',
+      "Unable to find \"Incoming\" Gmail label by path",
       gmailLabelPathIncoming
     );
     return false;
@@ -52,7 +52,7 @@ function validateConfig() {
   var processedLabel = getGmailProcessedLabel();
   if (!processedLabel) {
     Logger.log(
-      'Unable to find "Processed" Gmail label by path',
+      "Unable to find \"Processed\" Gmail label by path",
       gmailLabelPathProcessed
     );
     return false;

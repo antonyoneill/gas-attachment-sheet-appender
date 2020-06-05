@@ -1,20 +1,20 @@
 // eslint-disable-next-line no-undef
 module.exports = {
   env: {
-    'googleappsscript/googleappsscript': true,
+    "googleappsscript/googleappsscript": true,
     es6: true,
   },
-  plugins: ['googleappsscript'],
-  extends: 'eslint:recommended',
+  plugins: ["googleappsscript"],
+  extends: "eslint:recommended",
   globals: {
-    Atomics: 'readonly',
-    SharedArrayBuffer: 'readonly',
+    Atomics: "readonly",
+    SharedArrayBuffer: "readonly",
   },
   parserOptions: {
     ecmaVersion: 11,
-    sourceType: 'module',
+    sourceType: "module",
   },
   rules: {
-    quotes: ['error', 'single'],
+    quotes: ["error", "double"],
   },
 };
