@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint --fix . --ext .js",
     "format": "prettier --check src/**/*.js",
     "format:fix": "prettier --write src/**/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
