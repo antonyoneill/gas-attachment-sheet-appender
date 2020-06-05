@@ -12,6 +12,12 @@ const driveTargetSheetIds = [
   "1Av6K4tp_BFJwmS471nx4UjuNuCUvcb6KgRrTf5ObgVE",
   "1bbZZt_oUaTyyMYmkIkpbi7bOE2Al0WjkGJrv9j5VQRM",
 ];
+const additionalCSVExport = [
+  {
+    columns: [2, 10],
+    driveFolderId: "17l3ULW5ZDk6emsL7wgIbbVq3VL7xr763",
+  },
+];
 
 function getGmailIncomingLabel() {
   return GmailApp.getUserLabelByName(gmailLabelPathIncoming);
@@ -138,7 +144,46 @@ function processXlsFile(xlsFile) {
     appendDataToEnd(targetSheet, temporarySheet);
   }
 
+  for (const config of additionalCSVExport) {
+    const data = getSheetData(temporarySheet, config.columns);
+    const csvString = arrayToCSV(data);
+    writeCSVFile(config.driveFolderId, csvString);
+  }
+
   deleteFile(temporarySheet);
+}
+
+function getSheetData(sheet, columns) {
+  return columns.reduce((acc, columnIndex) => {
+    const values = sheet
+      .getActiveSheet()
+      .getRange(1, columnIndex, sheet.getLastRow())
+      .getValues();
+    values.map((cell, rowIndex) => {
+      if (!acc[rowIndex]) {
+        acc[rowIndex] = [];
+      }
+
+      acc[rowIndex].push(cell);
+    });
+    return acc;
+  }, []);
+}
+
+function arrayToCSV(data) {
+  return data.map((row) => row.join(",")).join("\r\n");
+}
+
+function writeCSVFile(folderId, stringData) {
+  const folder = DriveApp.getFolderById(folderId);
+  var fileName = new Date().toISOString() + ".csv";
+  try {
+    folder.createFile(fileName, stringData, MimeType.CSV);
+  } catch (error) {
+    Logger.log("An error occurred deleting the file. " + error);
+    throw new Error("Failed deleting the file " + fileName);
+  }
+  Logger.log("CSV File written");
 }
 
 function deleteFile(file) {
