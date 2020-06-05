@@ -16,9 +16,11 @@ const config = {
     {
       columns: [2, 10],
       driveFolderId: "17l3ULW5ZDk6emsL7wgIbbVq3VL7xr763",
+      callback: (csvString) => {
+      },
     },
-  ]
-}
+  ],
+};
 
 function getGmailIncomingLabel() {
   return GmailApp.getUserLabelByName(config.incomingGmailLabel);
@@ -145,10 +147,13 @@ function processXlsFile(xlsFile) {
     appendDataToEnd(targetSheet, temporarySheet);
   }
 
-  for (const config of config.additionalCSVExport) {
-    const data = getSheetData(temporarySheet, config.columns);
+  for (const exportConfig of config.additionalCSVExport) {
+    const data = getSheetData(temporarySheet, exportConfig.columns);
     const csvString = arrayToCSV(data);
-    writeCSVFile(config.driveFolderId, csvString);
+    writeCSVFile(exportConfig.driveFolderId, csvString);
+    if (exportConfig.callback) {
+      exportConfig.callback(csvString);
+    }
   }
 
   deleteFile(temporarySheet);
