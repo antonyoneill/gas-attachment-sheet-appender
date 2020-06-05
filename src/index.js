@@ -124,18 +124,50 @@ function processIncomingAttachments() {
       }
     }
 
-    // Mark processed email as read
-    // currentThread.markRead().refresh();
-    // processedLabel.addThread(currentThread);
-    // incomingLabel.removeFromThread(currentThread)
+    currentThread.markRead().refresh();
+    incomingLabel.removeFromThread(currentThread);
+    processedLabel.addToThread(currentThread);
   }
 }
 
 function processXlsFile(xlsFile) {
-  // Step 1. Upload xls file to Drive & convert
-  uploadXlsToSheets(xlsFile);
-  // Step 2. Merge temporary file into master sheet
-  // Step 3. Merge temporary file into live sheet
+  const temporarySheet = uploadXlsToSheets(xlsFile);
+
+  for (const targetSheet of getDriveTargetSheets()) {
+    appendDataToEnd(targetSheet, temporarySheet);
+  }
+
+  deleteFile(temporarySheet);
+}
+
+function deleteFile(file) {
+  try {
+    DriveApp.getFileById(file.getId()).setTrashed(true);
+  } catch (error) {
+    Logger.log("An error occurred deleting the file. " + error);
+    throw new Error("Failed deleting the file " + file.getId());
+  }
+  Logger.log("File deleted");
+}
+
+function appendDataToEnd(targetSheet, sourceSheet) {
+  var targetActiveSheet = targetSheet.getActiveSheet();
+  var sourceActiveSheet = sourceSheet.getActiveSheet();
+
+  var targetDataRange = targetActiveSheet.getRange(
+    targetActiveSheet.getLastRow() + 1,
+    1,
+    sourceActiveSheet.getLastRow(),
+    sourceActiveSheet.getLastColumn()
+  );
+  var sourceDataRange = sourceActiveSheet.getRange(
+    1,
+    1,
+    sourceActiveSheet.getLastRow(),
+    sourceActiveSheet.getLastColumn()
+  );
+
+  targetDataRange.setValues(sourceDataRange.getValues());
 }
 
 function uploadXlsToSheets(xlsFile) {
@@ -157,8 +189,14 @@ function uploadXlsToSheets(xlsFile) {
   try {
     file = Drive.Files.insert(metadata, xlsFile, options);
   } catch (error) {
-    Logger.log('An error occurred uploading the file. ' + error);
-    throw new Error('Failed to upload temporary file');
+    Logger.log("An error occurred uploading the file. " + error);
+    throw new Error("Failed to upload temporary file");
   }
-  return file;
+
+  try {
+    return SpreadsheetApp.openById(file.getId());
+  } catch (error) {
+    Logger.log("An error occurred opening the spreadsheet. " + error);
+    throw new Error("Failed to open temporary spreadsheet");
+  }
 }
