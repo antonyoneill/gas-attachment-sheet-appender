@@ -4,8 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "format": "prettier --check src/**/*.js",
+    "format:fix": "prettier --write src/**/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Antony O'Neill <antony@ant-web.co.uk>",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^2.0.5"
+  }
 }
