@@ -4,6 +4,7 @@
 //  3. Append data to master sheet
 //  4. Append data to live input sheet
 
+const excludeHeaders = true;
 const gmailLabelPathIncoming = "zAutomation/Incoming";
 const gmailLabelPathProcessed = "zAutomation/Processed";
 const driveTemporaryFolderId = "12sIBE9u-R5P5Vj1Bpvt6QQZKC7UqZBCA";
@@ -193,10 +194,17 @@ function uploadXlsToSheets(xlsFile) {
     throw new Error("Failed to upload temporary file");
   }
 
+  let spreadsheet;
   try {
-    return SpreadsheetApp.openById(file.getId());
+    spreadsheet = SpreadsheetApp.openById(file.getId());
   } catch (error) {
     Logger.log("An error occurred opening the spreadsheet. " + error);
     throw new Error("Failed to open temporary spreadsheet");
   }
+
+  if (excludeHeaders) {
+    spreadsheet.getActiveSheet().deleteRow(1);
+  }
+
+  return spreadsheet;
 }
