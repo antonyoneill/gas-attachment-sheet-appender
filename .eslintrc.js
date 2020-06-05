@@ -1,8 +1,11 @@
 module.exports = {
     "env": {
-        "browser": true,
+        "googleappsscript/googleappsscript": true,
         "es6": true
     },
+    "plugins": [
+        "googleappsscript"
+    ],
     "extends": "eslint:recommended",
     "globals": {
         "Atomics": "readonly",
