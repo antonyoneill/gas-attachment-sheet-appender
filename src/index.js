@@ -3,36 +3,37 @@
 //  2. Convert .xsl to google sheet/csv
 //  3. Append data to master sheet
 //  4. Append data to live input sheet
-
-const excludeHeaders = true;
-const gmailLabelPathIncoming = "zAutomation/Incoming";
-const gmailLabelPathProcessed = "zAutomation/Processed";
-const driveTemporaryFolderId = "12sIBE9u-R5P5Vj1Bpvt6QQZKC7UqZBCA";
-const driveTargetSheetIds = [
-  "1Av6K4tp_BFJwmS471nx4UjuNuCUvcb6KgRrTf5ObgVE",
-  "1bbZZt_oUaTyyMYmkIkpbi7bOE2Al0WjkGJrv9j5VQRM",
-];
-const additionalCSVExport = [
-  {
-    columns: [2, 10],
-    driveFolderId: "17l3ULW5ZDk6emsL7wgIbbVq3VL7xr763",
-  },
-];
+const config = {
+  excludeHeaders: true,
+  incomingGmailLabel: "zAutomation/Incoming",
+  processedGmailLabel: "zAutomation/Processed",
+  temporaryDriveFolderId: "12sIBE9u-R5P5Vj1Bpvt6QQZKC7UqZBCA",
+  driveTargetSheetIds: [
+    "1Av6K4tp_BFJwmS471nx4UjuNuCUvcb6KgRrTf5ObgVE",
+    "1bbZZt_oUaTyyMYmkIkpbi7bOE2Al0WjkGJrv9j5VQRM",
+  ],
+  additionalCSVExport: [
+    {
+      columns: [2, 10],
+      driveFolderId: "17l3ULW5ZDk6emsL7wgIbbVq3VL7xr763",
+    },
+  ]
+}
 
 function getGmailIncomingLabel() {
-  return GmailApp.getUserLabelByName(gmailLabelPathIncoming);
+  return GmailApp.getUserLabelByName(config.incomingGmailLabel);
 }
 
 function getGmailProcessedLabel() {
-  return GmailApp.getUserLabelByName(gmailLabelPathProcessed);
+  return GmailApp.getUserLabelByName(config.processedGmailLabel);
 }
 
 function getDriveTemporaryFolder() {
-  return DriveApp.getFolderById(driveTemporaryFolderId);
+  return DriveApp.getFolderById(config.temporaryDriveFolderId);
 }
 
 function getDriveTargetSheets() {
-  return driveTargetSheetIds.map((sheetId) => {
+  return config.driveTargetSheetIds.map((sheetId) => {
     try {
       return SpreadsheetApp.openById(sheetId);
     } catch (error) {
@@ -52,7 +53,7 @@ function validateConfig() {
   if (!incomingLabel) {
     Logger.log(
       "Unable to find \"Incoming\" Gmail label by path",
-      gmailLabelPathIncoming
+      config.incomingGmailLabel
     );
     return false;
   }
@@ -60,7 +61,7 @@ function validateConfig() {
   if (!processedLabel) {
     Logger.log(
       "Unable to find \"Processed\" Gmail label by path",
-      gmailLabelPathProcessed
+      config.processedGmailLabel
     );
     return false;
   }
@@ -68,7 +69,7 @@ function validateConfig() {
   if (!temporaryFolder) {
     Logger.log(
       "Unable to find Temporary Drive Folder label by id",
-      driveTemporaryFolderId
+      config.temporaryDriveFolderId
     );
     return false;
   }
@@ -144,7 +145,7 @@ function processXlsFile(xlsFile) {
     appendDataToEnd(targetSheet, temporarySheet);
   }
 
-  for (const config of additionalCSVExport) {
+  for (const config of config.additionalCSVExport) {
     const data = getSheetData(temporarySheet, config.columns);
     const csvString = arrayToCSV(data);
     writeCSVFile(config.driveFolderId, csvString);
@@ -247,7 +248,7 @@ function uploadXlsToSheets(xlsFile) {
     throw new Error("Failed to open temporary spreadsheet");
   }
 
-  if (excludeHeaders) {
+  if (config.excludeHeaders) {
     spreadsheet.getActiveSheet().deleteRow(1);
   }
 
